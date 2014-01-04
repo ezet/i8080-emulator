@@ -7,37 +7,58 @@ using System.Threading.Tasks;
 using Word = System.Byte;
 using DWord = System.UInt16;
 
-namespace eZet.Z80.Emulator {
+namespace eZet.i8080.Emulator {
+
+    public enum RegisterW { A, F, B, C, D, E, H, L, A2, F2, B2, C2, D2, E2, H2, L2, I = 25, R = 26 }
+
+    public enum RegisterD { AF, BC, DE, HL, AF2, BC2, DE2, HL2, IX, IY, SP, PC }
 
 
-    class Register {
-        public enum WordRegisterName { A, B, C, D, E, H, L, I, R }
+    public class Register {
 
-        public enum DWordRegisterName { AF, BC, DE, HL, AF2, BC2, DE2, HL2, IX, IY, SP, PC }
+        private unsafe struct FixedBuffer {
+            public fixed Word buffer[27];
+        }
 
         public enum StatusFlag { S, Z, I, H, P, C }
 
-        private int[] wordRegister = new int[9];
+        private bool[] statusRegister;
 
-        private int[] dWordRegister = new int[12];
+        private FixedBuffer mainRegister = default(FixedBuffer);
 
-        private bool[] statusRegister = new bool[6];
+        private unsafe DWord* dWordPtr;
 
-        public Word this[WordRegisterName index] {
-            get {
-                return (Word)wordRegister[(int)index];
-            }
-            set {
-                wordRegister[(int)index] = value;
+
+        public unsafe Register() {
+            statusRegister = new bool[Enum.GetNames(typeof(StatusFlag)).Length];
+            fixed (Word* ptr = mainRegister.buffer) {
+                dWordPtr = (DWord*)ptr;
             }
         }
 
-        public DWord this[DWordRegisterName index] {
+        public unsafe Word this[RegisterW index] {
             get {
-                return (DWord)dWordRegister[(int)index];
+                fixed (Word* ptr = mainRegister.buffer) {
+                    return ptr[(int)index];
+                }
             }
             set {
-                dWordRegister[(int)index] = value;
+                fixed (Word* ptr = mainRegister.buffer) {
+                    ptr[(int)index] = value;
+                }
+            }
+        }
+
+        public unsafe DWord this[RegisterD index] {
+            get {
+                fixed (Word* ptr = mainRegister.buffer) {
+                    return dWordPtr[(int)index];
+                }
+            }
+            set {
+                fixed (Word* ptr = mainRegister.buffer) {
+                    dWordPtr[(int)index] = value;
+                }
             }
         }
 
@@ -55,5 +76,4 @@ namespace eZet.Z80.Emulator {
 
 
 
-    }
 }

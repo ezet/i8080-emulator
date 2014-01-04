@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Z80 Emulator", "Z80 Emulator\Z80 Emulator.csproj", "{A89387E2-0376-49F6-A121-7517F5F773E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Test", "Unit Test\Unit Test.csproj", "{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{A89387E2-0376-49F6-A121-7517F5F773E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A89387E2-0376-49F6-A121-7517F5F773E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A89387E2-0376-49F6-A121-7517F5F773E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

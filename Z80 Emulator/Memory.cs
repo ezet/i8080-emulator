@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace eZet.Z80.Emulator {
+namespace eZet.i8080.Emulator {
     class Memory {
 
 

@@ -8,15 +8,31 @@ using Word = System.Byte;
 using DWord = System.UInt16;
 
 
-namespace eZet.Z80.Emulator {
+namespace eZet.i8080.Emulator {
     class Cpu {
 
-        private Register register;
+        private Register reg;
 
-        private FlagRegister flag = new FlagRegister();
+        private Memory mem;
+
+        private Word instructionRegister;
 
 
 
+
+        public Cpu() {
+            reg = new Register();
+            mem = new Memory();
+
+        }
+
+        public void run() {
+
+        }
+
+        private void fetchNextInstruction() {
+
+        }
 
 
 
