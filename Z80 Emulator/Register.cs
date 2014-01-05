@@ -9,9 +9,9 @@ using DWord = System.UInt16;
 
 namespace eZet.i8080.Emulator {
 
-    public enum RegisterW { A, F, B, C, D, E, H, L, A2, F2, B2, C2, D2, E2, H2, L2, I = 25, R = 26 }
+    public enum SymRef { A, F, B, C, D, E, H, L, A2, F2, B2, C2, D2, E2, H2, L2, I = 25, R = 26 }
 
-    public enum RegisterD { AF, BC, DE, HL, AF2, BC2, DE2, HL2, IX, IY, SP, PC }
+    public enum SymRefD { AF, BC, DE, HL, AF2, BC2, DE2, HL2, IX, IY, SP, PC }
 
 
     public class Register {
@@ -36,7 +36,7 @@ namespace eZet.i8080.Emulator {
             }
         }
 
-        public unsafe Word this[RegisterW index] {
+        public unsafe Word this[SymRef index] {
             get {
                 fixed (Word* ptr = mainRegister.buffer) {
                     return ptr[(int)index];
@@ -49,7 +49,7 @@ namespace eZet.i8080.Emulator {
             }
         }
 
-        public unsafe DWord this[RegisterD index] {
+        public unsafe DWord this[SymRefD index] {
             get {
                 fixed (Word* ptr = mainRegister.buffer) {
                     return dWordPtr[(int)index];

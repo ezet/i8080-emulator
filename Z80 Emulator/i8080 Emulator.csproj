@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>eZet.i8080.Emulator</RootNamespace>
-    <AssemblyName>Z80 Emulator</AssemblyName>
+    <AssemblyName>i8080 Emulator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

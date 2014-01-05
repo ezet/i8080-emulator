@@ -18,8 +18,6 @@ namespace eZet.i8080.Emulator {
         private Word instructionRegister;
 
 
-
-
         public Cpu() {
             reg = new Register();
             mem = new Memory();
