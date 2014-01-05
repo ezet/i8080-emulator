@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Z80 Emulator", "Z80 Emulator\Z80 Emulator.csproj", "{A89387E2-0376-49F6-A121-7517F5F773E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "i8080 Emulator", "Z80 Emulator\i8080 Emulator.csproj", "{A89387E2-0376-49F6-A121-7517F5F773E6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Test", "Unit Test\Unit Test.csproj", "{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "i8080 Disassembler", "i8080 Disassembler\i8080 Disassembler.csproj", "{C7C12BB5-7823-401E-90C3-8EA7F92ED774}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7C12BB5-7823-401E-90C3-8EA7F92ED774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7C12BB5-7823-401E-90C3-8EA7F92ED774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7C12BB5-7823-401E-90C3-8EA7F92ED774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7C12BB5-7823-401E-90C3-8EA7F92ED774}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -20,17 +20,12 @@ namespace eZet.i8080.Emulator {
             public fixed Word buffer[27];
         }
 
-        public enum StatusFlag { S, Z, I, H, P, C }
-
-        private bool[] statusRegister;
-
         private FixedBuffer mainRegister = default(FixedBuffer);
 
         private unsafe DWord* dWordPtr;
 
 
         public unsafe Register() {
-            statusRegister = new bool[Enum.GetNames(typeof(StatusFlag)).Length];
             fixed (Word* ptr = mainRegister.buffer) {
                 dWordPtr = (DWord*)ptr;
             }
@@ -62,14 +57,7 @@ namespace eZet.i8080.Emulator {
             }
         }
 
-        public bool this[StatusFlag index] {
-            get {
-                return statusRegister[(int)index];
-            }
-            set {
-                statusRegister[(int)index] = value;
-            }
-        }
+   
     }
 
 

@@ -9,13 +9,17 @@ using DWord = System.UInt16;
 
 
 namespace eZet.i8080.Emulator {
-    class Cpu {
+
+    public class Cpu {
+
+        private StatusRegister flag;
 
         private Register reg;
 
         private Memory mem;
 
         private Word instructionRegister;
+
 
 
         public Cpu() {
