@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
 
 using Word = System.Byte;
 using DWord = System.UInt16;
-using System.Collections;
+using Flag = eZet.i8080.Emulator.StatusFlag;
 
 
 
@@ -22,7 +23,13 @@ namespace eZet.i8080.Emulator {
 
         private Memory mem;
 
+        private Alu alu;
+
         private Word instructionRegister;
+
+        private Word acc;
+
+        private Word tmp;
 
         private InstructionHandler[] opcode = new InstructionHandler[256];
 
@@ -30,6 +37,7 @@ namespace eZet.i8080.Emulator {
             reg = new Register();
             mem = new Memory();
             flag = new StatusRegister();
+            alu = new Alu();
 
         }
 
@@ -42,17 +50,24 @@ namespace eZet.i8080.Emulator {
         }
 
         private void executeInstruction() {
-            opcode[instructionRegister].Invoke();
+            try {
+                opcode[instructionRegister].Invoke();
+            } catch (System.OverflowException e) {
+
+            }
         }
 
-        public void setFlags(short value, params StatusFlag[] flags) {
-
+        private void setFlags(params StatusFlag[] flags) {
             if (flags.Contains(StatusFlag.C)) {
-
+                if (alu.Carry) {
+                    flag.set(StatusFlag.C);
+                } else {
+                    flag.clear(StatusFlag.C);
+                }
             }
 
             if (flags.Contains(StatusFlag.P)) {
-                if (evenParity(value)) {
+                if (evenParity(acc)) {
                     flag.set(StatusFlag.P);
                 } else {
                     flag.clear(StatusFlag.P);
@@ -64,21 +79,22 @@ namespace eZet.i8080.Emulator {
             }
 
             if (flags.Contains(StatusFlag.Z)) {
-                if (value == 0)
+                if (acc == 0)
                     flag.set(StatusFlag.Z);
                 else
                     flag.clear(StatusFlag.Z);
             }
 
             if (flags.Contains(StatusFlag.S)) {
-                if (value < 0)
+                //flag.put(value, StatusFlag.S);
+                if ((acc & 0xff) != 0)
                     flag.set(StatusFlag.S);
                 else
                     flag.clear(StatusFlag.S);
             }
         }
 
-        public bool evenParity(int v) {
+        private bool evenParity(int v) {
             v ^= v >> 16;
             v ^= v >> 8;
             v ^= v >> 4;
@@ -86,10 +102,12 @@ namespace eZet.i8080.Emulator {
             return ((0x6996 >> v) & 1) == 0;
         }
 
+        private void nop() { }
+
         private void initInstructionMap() {
 
             // NOP
-            opcode[0x00] = () => { };
+            opcode[0x00] = nop;
 
             // LXI B, d16
             opcode[0x01] = () => {
@@ -109,11 +127,57 @@ namespace eZet.i8080.Emulator {
 
             // INR B
             opcode[0x04] = () => {
-                reg[SymRef.B]++;
-                setFlags(reg[SymRef.B]++);
-                // TODO set flags
+                acc = reg[SymRef.B];
+                acc = alu.add(acc, 1);
+                setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
+                reg[SymRef.B] = acc;
             };
+            
+            // DCR B
+            opcode[0x05] = () => {
+                acc = reg[SymRef.B];
+                acc = alu.sub(acc, 1);
+                setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
+                reg[SymRef.B] = acc;
+            };
+
+            // MVI B, d8
+            opcode[0x06] = () => {
+                reg[SymRef.B] = mem[reg.Pc++];
+            };
+
+            // RLC
+            opcode[0x07] = () => {
+                acc = reg[SymRef.A];
+                acc = alu.rotateLeft(acc, 1);
+                flag.put(tmp, Flag.C);
+            };
+            
+            // NOP
+            opcode[0x08] = nop;
+
+            // DAD B
+            opcode[0x09] = () => {
+                reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], reg[SymRefD.BC]);
+                setFlags(Flag.C);
+            };
+
+            // LDAX B
+            opcode[0x0a] = () => {
+                reg[SymRef.A] = mem.[reg[SymRefD.BC]];
+            };
+
+            // DCX B
+            opcode[0x0b] = () => {
+                reg[SymRefD.BC] = alu.sub(reg[SymRefD.BC], 1);
+            };
+
+
+
+
+
         }
+     
 
 
     }

@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alu.cs" />
     <Compile Include="Cpu.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="Program.cs" />
