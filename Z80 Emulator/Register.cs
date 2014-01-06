@@ -9,20 +9,23 @@ using DWord = System.UInt16;
 
 namespace eZet.i8080.Emulator {
 
-    public enum SymRef { A, F, B, C, D, E, H, L, A2, F2, B2, C2, D2, E2, H2, L2, I = 25, R = 26 }
+    public enum SymRef { A, F, B, C, D, E, H, L}
 
-    public enum SymRefD { AF, BC, DE, HL, AF2, BC2, DE2, HL2, IX, IY, SP, PC }
+    public enum SymRefD { AF, BC, DE, HL}
 
 
     public class Register {
 
         private unsafe struct FixedBuffer {
-            public fixed Word buffer[27];
+            public fixed Word buffer[8];
         }
 
         private FixedBuffer mainRegister = default(FixedBuffer);
 
         private unsafe DWord* dWordPtr;
+
+        public DWord Pc { get; set; }
+        public DWord Sp { get; set; }
 
 
         public unsafe Register() {
@@ -56,6 +59,7 @@ namespace eZet.i8080.Emulator {
                 }
             }
         }
+
 
    
     }
