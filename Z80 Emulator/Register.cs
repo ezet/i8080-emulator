@@ -11,7 +11,7 @@ namespace eZet.i8080.Emulator {
 
     public enum SymRef { A, F, B, C, D, E, H, L}
 
-    public enum SymRefD { AF, BC, DE, HL}
+    public enum SymRefD { PSW, BC, DE, HL = 4, M = 4}
 
 
     public class Register {
