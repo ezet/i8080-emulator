@@ -17,7 +17,7 @@ namespace eZet.i8080.Emulator {
 
         public delegate void InstructionHandler();
 
-        private StatusRegister flag;
+        private StatusRegister flags;
 
         private Register reg;
 
@@ -29,15 +29,16 @@ namespace eZet.i8080.Emulator {
 
         private Word acc;
 
-        private Word tmp;
+        //private Word tmp;
 
         private InstructionHandler[] opcode = new InstructionHandler[256];
 
         public Cpu() {
             reg = new Register();
             mem = new Memory();
-            flag = new StatusRegister();
+            flags = new StatusRegister();
             alu = new Alu();
+            initOpcodeMap();
 
         }
 
@@ -50,47 +51,43 @@ namespace eZet.i8080.Emulator {
         }
 
         private void executeInstruction() {
-            try {
                 opcode[instructionRegister].Invoke();
-            } catch (System.OverflowException e) {
-
-            }
         }
 
-        private void setFlags(params StatusFlag[] flags) {
-            if (flags.Contains(StatusFlag.C)) {
+        private void setFlags(params StatusFlag[] flagList) {
+            if (flagList.Contains(StatusFlag.C)) {
                 if (alu.Carry) {
-                    flag.set(StatusFlag.C);
-                } else {
-                    flag.clear(StatusFlag.C);
+                    flags.set(StatusFlag.C);
+                } else{ 
+                    flags.clear(StatusFlag.C);
                 }
             }
 
-            if (flags.Contains(StatusFlag.P)) {
+            if (flagList.Contains(StatusFlag.P)) {
                 if (evenParity(acc)) {
-                    flag.set(StatusFlag.P);
+                    flags.set(StatusFlag.P);
                 } else {
-                    flag.clear(StatusFlag.P);
+                    flags.clear(StatusFlag.P);
                 }
             }
 
-            if (flags.Contains(StatusFlag.A)) {
+            if (flagList.Contains(StatusFlag.A)) {
 
             }
 
-            if (flags.Contains(StatusFlag.Z)) {
+            if (flagList.Contains(StatusFlag.Z)) {
                 if (acc == 0)
-                    flag.set(StatusFlag.Z);
+                    flags.set(StatusFlag.Z);
                 else
-                    flag.clear(StatusFlag.Z);
+                    flags.clear(StatusFlag.Z);
             }
 
-            if (flags.Contains(StatusFlag.S)) {
+            if (flagList.Contains(StatusFlag.S)) {
                 //flag.put(value, StatusFlag.S);
                 if ((acc & 0xff) != 0)
-                    flag.set(StatusFlag.S);
+                    flags.set(StatusFlag.S);
                 else
-                    flag.clear(StatusFlag.S);
+                    flags.clear(StatusFlag.S);
             }
         }
 
@@ -104,7 +101,7 @@ namespace eZet.i8080.Emulator {
 
         private void nop() { }
 
-        private void initInstructionMap() {
+        private void initOpcodeMap() {
 
             // NOP
             opcode[0x00] = nop;
@@ -122,7 +119,7 @@ namespace eZet.i8080.Emulator {
 
             // INX B
             opcode[0x03] = () => {
-                reg[SymRefD.BC]++;
+                reg[SymRefD.BC] = alu.add(reg[SymRefD.BC], 1);
             };
 
             // INR B
@@ -150,7 +147,7 @@ namespace eZet.i8080.Emulator {
             opcode[0x07] = () => {
                 acc = reg[SymRef.A];
                 acc = alu.rotateLeft(acc, 1);
-                flag.put(tmp, Flag.C);
+                flags.put(acc, Flag.C);
             };
             
             // NOP
@@ -164,7 +161,7 @@ namespace eZet.i8080.Emulator {
 
             // LDAX B
             opcode[0x0a] = () => {
-                reg[SymRef.A] = mem.[reg[SymRefD.BC]];
+                reg[SymRef.A] = mem[reg[SymRefD.BC]];
             };
 
             // DCX B
@@ -172,12 +169,95 @@ namespace eZet.i8080.Emulator {
                 reg[SymRefD.BC] = alu.sub(reg[SymRefD.BC], 1);
             };
 
+            // INR C
+            opcode[0x0c] = () => {
+                acc = reg[SymRef.C];
+                acc = alu.add(acc, 1);
+                setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
+                reg[SymRef.C] = acc;
+            };
+
+            // DCR C
+            opcode[0x0d] = () => {
+                acc = reg[SymRef.C];
+                acc = alu.sub(acc, 1);
+                setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
+                reg[SymRef.C] = acc;
+            };
+
+            // MVI C, d8
+            opcode[0x0e] = () => {
+                reg[SymRef.C] = mem[reg.Pc++];
+            };
+
+            // RRC
+            opcode[0x0f] = () => {
+                acc = reg[SymRef.A];
+                flags.put(acc, Flag.C);
+                acc = alu.rotateRight(acc, 1);
+            };
+
+            // NOP
+            opcode[0x10] = nop;
+
+            // LXI D, d16
+            opcode[0x11] = () => {
+                reg[SymRef.E] = mem[reg.Pc++];
+                reg[SymRef.D] = mem[reg.Pc++];
+            };
+
+            // STAX D
+            opcode[0x12] = () => {
+                mem[reg[SymRefD.DE]] = reg[SymRef.A];
+            };
+
+            //INX D
+            opcode[0x13] = () => {
+                reg[SymRefD.DE] = alu.add(reg[SymRefD.DE], 1);
+            };
+
+            // INR D
+            opcode[0x14] = () => {
+                acc = reg[SymRef.D];
+                acc = alu.add(acc, 1);
+                setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
+                reg[SymRef.D] = acc;
+            };
+
+        // DCR D
+            opcode[0x15] = () => {
+                acc = reg[SymRef.D];
+                acc = alu.sub(acc, 1);
+                setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
+                reg[SymRef.D] = acc;
+            };
+
+            // MVI D, d8
+            opcode[0x16] = () => {
+                reg[SymRef.D] = mem[reg.Pc++];
+            };
+
+            // RAL
+            opcode[0x17] = () => {
+                acc = reg[SymRef.A];
+                flags.put((Word)(acc >> 7), Flag.C);
+                acc = alu.rotateCarryLeft(acc, 1, flags.get(Flag.C));
+            };
+
+            // NOP
+            opcode[0x18] = nop;
+
+            // DAD D
+            opcode[0x19] = () => {
+                reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], reg[SymRefD.DE]);
+                setFlags(Flag.C);
+            };
 
 
 
 
         }
-     
+
 
 
     }
