@@ -37,7 +37,6 @@ namespace eZet.i8080.Emulator {
             register = (register & StatusFlag.None);
         }
 
-
         public void toggle(StatusFlag flag) {
             register = (register ^ flag);
         }
@@ -45,6 +44,12 @@ namespace eZet.i8080.Emulator {
         public void toggle() {
             register = (register ^ StatusFlag.All);
         }
+
+ 
+
+
+
+
 
     }
 }
