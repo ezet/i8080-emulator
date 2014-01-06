@@ -40,7 +40,7 @@ namespace eZet.i8080.Disassembler {
 
         private void initMap() {
 
-            opcodeMap = new OpcodeHandler[0xff1];
+            opcodeMap = new OpcodeHandler[256];
             opcodeMap[0x00] = r => "NOP";
 
             // Load Immediate register pair BC
