@@ -6,7 +6,7 @@
     <ProjectGuid>{6F47422C-E8D8-456D-AD02-5EB1EBBA0012}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Unit_Test</RootNamespace>
+    <RootNamespace>eZet.i8080.Test</RootNamespace>
     <AssemblyName>Unit Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -50,10 +50,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="RegisterTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="AluTester.cs" />
+    <Compile Include="StatusRegisterTester.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\i8080 Disassembler\i8080 Disassembler.csproj">
+      <Project>{c7c12bb5-7823-401e-90c3-8ea7f92ed774}</Project>
+      <Name>i8080 Disassembler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Z80 Emulator\i8080 Emulator.csproj">
       <Project>{a89387e2-0376-49f6-a121-7517f5f773e6}</Project>
       <Name>i8080 Emulator</Name>

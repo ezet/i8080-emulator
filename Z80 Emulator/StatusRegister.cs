@@ -10,44 +10,56 @@ namespace eZet.i8080.Emulator {
 
     [Flags]
     public enum StatusFlag {
-        None = 0x00,
+        None = 0x0,
         C = 0x1,
         Reset = 0x2,
         P = 0x4,
-        Null = 0x8,
         A = 0x10,
-        Null = 0x20,
         Z = 0x40,
         S = 0x80,
         All = 0xff,
     }
 
-    public struct StatusRegister {
+    public class StatusRegister {
 
-        public StatusFlag Register {get; private set;}
+        public StatusFlag Register { get; private set; }
 
-        public bool get(StatusFlag flag) {
-            return Register.HasFlag(flag);
+        public StatusRegister() {
+            Register = StatusFlag.Reset;
         }
 
-        public void set(StatusFlag flag) {
-            Register = (Register | flag);
+        public bool get(params StatusFlag[] flagList) {
+            bool retval = true;
+            foreach (StatusFlag flag in flagList) {
+                retval = Register.HasFlag(flag) ? true : false; 
+            }
+            return retval;
         }
 
-        public void clear(StatusFlag flag) {
-            Register = (Register & ~flag);
+        public void set(params StatusFlag[] flagList) {
+            foreach (StatusFlag flag in flagList) {
+                Register = (Register | flag);
+            }
+        }
+
+        public void clear(params StatusFlag[] flagList) {
+            foreach (StatusFlag flag in flagList) {
+                Register = (Register & ~flag);
+            }
         }
 
         public void clear() {
-            Register = StatusFlag.Reset;
+            Register = StatusFlag.None;
         }
 
         public void reset() {
             Register = StatusFlag.Reset;
         }
 
-        public void toggle(StatusFlag flag) {
-            Register = (Register ^ flag);
+        public void toggle(params StatusFlag[] flagList) {
+            foreach (StatusFlag flag in flagList) {
+                Register = (Register ^ flag);
+            }
         }
 
         public void toggle() {
@@ -61,12 +73,6 @@ namespace eZet.i8080.Emulator {
         public void put(Word mask) {
             Register = (StatusFlag)mask;
         }
-
- 
-
-
-
-
 
     }
 }
