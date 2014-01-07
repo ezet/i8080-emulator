@@ -20,26 +20,38 @@ namespace eZet.i8080.Emulator {
             Carry = false;
         }
 
-        public Word add(Word lhs, Word rhs) {
-            tmp = lhs + rhs;
+        public Word add(params Word[] list) {
+            tmp = 0;
+            foreach (var val in list) {
+                tmp += val;
+            }
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp;
         }
-        public DWord add(DWord lhs, DWord rhs) {
-            tmp = lhs + rhs;
+        public DWord add(params DWord[]list) {
+            tmp = 0;
+            foreach (var val in list) {
+                tmp += val;
+            }
             checkCarry(DWord.MinValue, DWord.MaxValue);
             return (DWord)tmp;
         }
 
-        public Word sub(Word lhs, Word rhs) {
-            tmp = lhs - rhs;
+        public Word sub(params Word[] list) {
+            tmp = list[0];
+            foreach (var value in list.Skip(1)) {
+                tmp -= value;
+            }
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp; ;
         }
 
 
-        public DWord sub(DWord lhs, DWord rhs) {
-            tmp = lhs - rhs;
+        public DWord sub(params DWord[] list) {
+            tmp = list[0];
+            foreach (var value in list.Skip(1)) {
+                tmp -= value;
+            }
             checkCarry(DWord.MinValue, DWord.MaxValue);
             return (DWord)tmp;
         }
@@ -59,7 +71,7 @@ namespace eZet.i8080.Emulator {
             throw new NotImplementedException("rotateCarryLeft");
         }
 
-        public Word rotateCarryRight(Word value, int count) {
+        public Word rotateCarryRight(Word value, int count, bool carry) {
             // TODO implement
             throw new NotImplementedException("rotateCarryRight");
         }
@@ -72,6 +84,34 @@ namespace eZet.i8080.Emulator {
             return (Word)((value >> count) | (value << (8 - count)));
         }
 
+        public Word and(params Word[] list) {
+            tmp = list[0];
+            foreach (var value in list.Skip(1)) {
+                tmp &= value;
+            }
+            checkCarry(Word.MinValue, Word.MaxValue);
+            return (Word)tmp;
+        }
+
+        public Word or(params Word[] list) {
+            tmp = list[0];
+            foreach (var value in list.Skip(1)) {
+                tmp |= value;
+            }
+            checkCarry(Word.MinValue, Word.MaxValue);
+            return (Word)tmp;
+        }
+
+        public Word xor(params Word[] list) {
+            tmp = list[0];
+            foreach (var value in list.Skip(1)) {
+                tmp ^= value;
+            }
+            checkCarry(Word.MinValue, Word.MaxValue);
+            return (Word)tmp;
+        }
+
+
         private void checkCarry(int min, int max) {
             if (tmp < min || tmp > max) {
                 Carry = true;
@@ -79,6 +119,8 @@ namespace eZet.i8080.Emulator {
                 Carry = false;
             }
         }
+
+       
 
    
 
