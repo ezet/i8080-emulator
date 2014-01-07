@@ -36,6 +36,11 @@ namespace eZet.i8080.Emulator {
             return retval;
         }
 
+        public Byte get() {
+            // TODO Implement this
+            return 0;
+        }
+
         public void set(params StatusFlag[] flagList) {
             foreach (StatusFlag flag in flagList) {
                 Register = (Register | flag);
