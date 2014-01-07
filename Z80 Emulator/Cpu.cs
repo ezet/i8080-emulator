@@ -8,6 +8,7 @@ using System.Collections;
 using Word = System.Byte;
 using DWord = System.UInt16;
 using Flag = eZet.i8080.Emulator.StatusFlag;
+using System.IO;
 
 
 
@@ -29,6 +30,10 @@ namespace eZet.i8080.Emulator {
 
         private Word acc;
 
+        private bool halt;
+
+        private int cycles;
+
         //private Word tmp;
 
         private InstructionHandler[] opcode = new InstructionHandler[256];
@@ -39,11 +44,30 @@ namespace eZet.i8080.Emulator {
             flags = new StatusRegister();
             alu = new Alu();
             initOpcodeMap();
-
         }
 
-        public void run() {
+        public void execute() {
+            initialize();
+            reg.Pc = mem.CodeStart;
+            while (reg.Pc < 64000 && !halt && cycles < 10) {
+                fetchNextInstruction();
+                executeInstruction();
+                ++cycles;
+            }
+        }
 
+        public void loadProgram(Stream input) {
+            using (var ms = new MemoryStream()) {
+                input.CopyTo(ms);
+                mem.storeProgramCode(ms);
+            }
+        }
+
+        private void initialize() {
+            flags.reset();
+            alu.reset();
+            halt = false;
+            cycles = 0;
         }
 
         private void fetchNextInstruction() {
@@ -51,7 +75,12 @@ namespace eZet.i8080.Emulator {
         }
 
         private void executeInstruction() {
+            try {
                 opcode[instructionRegister].Invoke();
+                Console.WriteLine("Executed: 0x{0:X}", instructionRegister);
+            } catch (NullReferenceException e) {
+                Console.WriteLine("Opcode not recognized: 0x{0:X} ", instructionRegister);
+            }
         }
 
         private void setFlags(params StatusFlag[] flagList) {
