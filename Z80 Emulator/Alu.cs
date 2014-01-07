@@ -16,6 +16,10 @@ namespace eZet.i8080.Emulator {
         public Alu() {
         }
 
+        public void reset() {
+            Carry = false;
+        }
+
         public Word add(Word lhs, Word rhs) {
             tmp = lhs + rhs;
             checkCarry(Word.MinValue, Word.MaxValue);
@@ -75,6 +79,8 @@ namespace eZet.i8080.Emulator {
                 Carry = false;
             }
         }
+
+   
 
     }
 }
