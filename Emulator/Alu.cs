@@ -67,13 +67,13 @@ namespace eZet.i8080.Emulator {
 
 
         public Word rotateCarryLeft(Word value, int count, bool carry) {
-            // TODO implement.
-            throw new NotImplementedException("rotateCarryLeft");
+            Word c = (Word)(carry ? 1 : 0);
+            Carry = value >> 7 == 1;
+            return (Word)(shiftLeft(value, count) + c);
         }
 
-        public Word rotateCarryRight(Word value, int count, bool carry) {
-            // TODO implement
-            throw new NotImplementedException("rotateCarryRight");
+        public Word rotateCarryRight(Word value, int count, Word carry) {
+            return (Word)(shiftRight(value, count) + carry);
         }
 
         public Word rotateLeft(Word value, int count) {

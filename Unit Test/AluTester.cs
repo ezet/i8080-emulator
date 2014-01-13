@@ -26,6 +26,11 @@ namespace eZet.i8080.Test {
             res = alu.add(1, 1);
             Assert.AreEqual(2, res);
             Assert.IsFalse(alu.Carry);
+            res = alu.add(0x3d, 0x42, 0);
+            Assert.AreEqual(0x7f, res);
+            res = alu.add(0x3d, 0x42, 1);
+            Assert.AreEqual(0x80, res);
+
         }
 
         [TestMethod]

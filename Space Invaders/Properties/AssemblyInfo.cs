@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("i8080 Disassembler")]
+[assembly: AssemblyTitle("Space Invaders")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("i8080 Disassembler")]
+[assembly: AssemblyProduct("Space Invaders")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d52343e0-204d-4dce-8b07-2d15a41ba815")]
+[assembly: Guid("82ea59f4-99d5-4b45-ab1d-2565cd588e69")]
 
 // Version information for an assembly consists of the following four values:
 //

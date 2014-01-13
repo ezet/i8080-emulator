@@ -14,7 +14,9 @@ namespace eZet.i8080.Emulator {
         C = 0x1,
         Reset = 0x2,
         P = 0x4,
+        //Zero = 0x8
         A = 0x10,
+        //Zero = 0x20
         Z = 0x40,
         S = 0x80,
         All = 0xff,
@@ -25,7 +27,7 @@ namespace eZet.i8080.Emulator {
         public StatusFlag Register { get; private set; }
 
         public StatusRegister() {
-            Register = StatusFlag.Reset;
+            reset();
         }
 
         public bool get(params StatusFlag[] flagList) {
@@ -37,8 +39,9 @@ namespace eZet.i8080.Emulator {
         }
 
         public Byte get() {
+            Byte b = (Word)Register;
             // TODO Implement this
-            return 0;
+            return b;
         }
 
         public void set(params StatusFlag[] flagList) {
@@ -71,8 +74,8 @@ namespace eZet.i8080.Emulator {
             Register = (Register ^ StatusFlag.All);
         }
 
-        public void put(Word mask, StatusFlag flag) {
-            Register = (((StatusFlag)mask & flag) | Register);
+        public void put(Word source, StatusFlag mask) {
+            Register = (Register & ~mask) | ((StatusFlag)source & mask); 
         }
 
         public void put(Word mask) {
