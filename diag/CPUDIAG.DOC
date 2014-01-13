@@ -1,0 +1,51 @@
+
+          Microcosm Associates CPU Test/Diagnostic
+
+                          for the
+
+                       8080 and 8085
+
+    
+    Donated to the "SIG/M" CP/M User's Group by Kelly Smith
+
+
+ This is an extensive diagnostic for the 8080 and 8085 CPU, and 
+exercises  most functions of the processor.  This diagnostic is 
+NOT for the Z80,  but may be modified as required to handle the 
+incompatible  "Sign/Parity  Flag  Bit".   This  diagnostic  was 
+especially helpful in tracking down problems I encountered with 
+early production run's of the NEC 8080 which exhibited problems 
+with the "Aux Carry Flag Bit" when doing "DAA's".
+
+ A  succesful  run of the program will  display  the  following 
+message:
+
+CPU IS OPERATIONAL
+
+ an  unsuccesful run of the program will display the  following 
+message:
+
+CPU HAS FAILED!   ERROR EXIT=NNNN
+
+ Where  "NNNN" is the address location AFTER the test  failure. 
+The  CPUDIAG.PRN file may then be referenced as to the  address 
+location  "EXIT" of the failure,  to determine the exact nature 
+of the problem. Error address's were not included in the ".DOC" 
+file,  because  the program is typically relocated in PROM  for 
+system  diagnostic  purposes.  The  program  has  however  been 
+CP/Mified to run as a ".COM" file,  with BDOS calls for console 
+I/O.
+
+ This  program  also serves as a very good "tutorial aid"  when 
+traced  with Digital Research's DDT or SID,  to gain  a  better 
+understanding of register manipulation and arithmetic processes 
+of the 8080 and 8085 CPU.
+
+
+                              Kelly Smith, Microcosm Associates
+                              3055 Waco Avenue
+                              Simi Valley, California, 93065
+                              (805) 527-9321 (Modem, CP/M-NET)
+                              (805) 527-0518 (Verbal)
+
+

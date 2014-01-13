@@ -1,0 +1,47 @@
+          Microcosm Associates Disk Diagnostic
+
+                       for the
+
+        Icom FD3712 Single Density Disk Controller
+
+                       and the
+
+        Icom FD3812 Double Density Disk Controller
+
+
+   Donated to the "SIG/M" CP/M User's Group by Kelly Smith
+
+
+ This  is  an  extensive "production test/diagnostic"  for  the 
+Pertec/Icom  Single  and Double Density  Disk  Controller.  The 
+files  3712DIAG.ASM  and 3812DIAG.ASM are  "self  documenting", 
+with a "menu display" of test options at the first execution of 
+either program.  These programs were originaly written for  the 
+MITS  Altair  8800b  Computer,  and therefor utilize  the  MITS 
+console  port  address's  of  10  and  11  hexadecimal.   These 
+address's  may  easily  be modified  by  changing  the  console 
+equates  as  required  by you console  I/O.  In  addition,  the 
+3712DIAG.ASM  file  is compatible for testing  the  older  Icom 
+"Frugal Floppy" system.
+
+ Primary  differences between the FD3712 and FD3812 diagnostics 
+are   in  "density  select"  options  and  diskette   formating 
+capabilities of the 3812DIAG.ASM file,  which supports the  IBM 
+single density/single sided format,  "1D" format,  "2D" format, 
+and  "2D Extended (1024 bytes per sector,  8 sectors per track) 
+format  ("2D  Extended" is hardware dependent on  DMA  transfer 
+capability).
+
+ This code was initially written by me about 3 years ago,  when 
+I  first got into codeing for the 8080,  and is therefor a  bit 
+"amateurish"  in some areas...that "INIT" routine with all  the 
+"STA's" for example! But in any case, the code does work  quite 
+well for a first effort on my part...
+
+
+                              Kelly Smith, Microcosm Associates
+                              3055 Waco Avenue
+                              Simi Valley, California
+                              (805) 527-9321 (Modem, CP/M-NET)
+                              (805) 527-0518 (Verbal)
+
