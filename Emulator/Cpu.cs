@@ -38,11 +38,13 @@ namespace eZet.i8080.Emulator {
 
         public IDebug Debugger { get; set; }
 
-        private Word interruptVector;
+        private volatile Word interruptVector;
 
-        private bool interruptReq;
+        private volatile bool interruptReq;
 
         private DWord locationCounter;
+
+        private object InterruptLock = new object();
 
         public Bus Bus { get; private set; }
 
@@ -70,17 +72,21 @@ namespace eZet.i8080.Emulator {
                 Reg[SymRef.F] = Flags.get();
                 ++instCount;
 
-                if (IntE && interruptReq) {
-                    IntE = false;
-                    Decoder.executeInstruction(interruptVector);
-                    interruptReq = false;
+                lock (InterruptLock) {
+                    if (IntE && interruptReq) {
+                        IntE = false;
+                        Decoder.executeInstruction(interruptVector);
+                        interruptReq = false;
+                    }
                 }
             }
         }
 
         public void Bus_InterruptEvent(object sender, BusEventArgs e) {
-            interruptVector = e.Data;
-            interruptReq = true;
+            lock (InterruptLock) {
+                interruptReq = true;
+                interruptVector = e.Data;
+            }
         }
 
     

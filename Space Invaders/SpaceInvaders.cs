@@ -105,16 +105,30 @@ namespace eZet.i8080.Games.SpaceInvaders {
         }
 
         private void startInterruptTimer() {
-            System.Timers.Timer rst8Timer = new System.Timers.Timer(15);
-            rst8Timer.AutoReset = true;
-            rst8Timer.Elapsed += (source, e) => {
+            var t = new System.Windows.Forms.Timer();
+            t.Interval = 16;
+            t.Tick += (source, e) => {
+                c++;
+                //if (c % 60 == 0)
                 vblank();
-                Thread.Sleep(7);
+                Application.DoEvents();
                 system.IoController.Interrupt(0, 0xcf); // RST 8 
-                Thread.Sleep(7);
+                Thread.Sleep(8);
                 system.IoController.Interrupt(0, 0xd7); // RST 10 start vblank
             };
-            rst8Timer.Enabled = true;
+            t.Start();
+
+            System.Timers.Timer rst8Timer = new System.Timers.Timer(16);
+            //rst8Timer.AutoReset = true;
+            //rst8Timer.Elapsed += (source, e) => {
+            //    c++;
+            //    //if (c % 60 == 0)
+            //    vblank();
+            //    system.IoController.Interrupt(0, 0xcf); // RST 8 
+            //    Thread.Sleep(8);
+            //    system.IoController.Interrupt(0, 0xd7); // RST 10 start vblank
+            //};
+            //rst8Timer.Enabled = true;
         }
 
         private MemoryStream loadInvaders() {
