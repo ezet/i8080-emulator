@@ -13,9 +13,9 @@ namespace eZet.i8080.Games.SpaceInvaders {
         /// </summary>
         [STAThread]
         static void Main() {
+            //Application.ThreadException += (object sender, ThreadExceptionEventArgs e) => { Debug.Write(e.ToString()); };
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.ThreadException += (object sender, ThreadExceptionEventArgs e) => { Debug.Write(e.ToString()); };
             Application.Run(new SpaceInvaders());
         }
     }

@@ -85,8 +85,8 @@ namespace eZet.i8080.Emulator {
             Cpu.run();
         }
 
-        public MemoryStream getVram() {
-            return new MemoryStream(MemoryController.Ram, MemoryController.VramBase, MemoryController.VramEnd - MemoryController.VramBase);
+        public Byte[] getVram() {
+            return MemoryController.getVram();
         }
 
         public void RunCpuDiag() {

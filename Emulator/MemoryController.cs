@@ -15,8 +15,6 @@ namespace eZet.i8080.Emulator {
 
         public Word[] Ram { get; private set; }
 
-        public Word[] Vram { get; private set; }
-
         public DWord Capacity { get; private set; }
 
         public DWord SystemBase { get; private set; }
@@ -33,11 +31,10 @@ namespace eZet.i8080.Emulator {
 
         public MemoryController(Bus bus) {
             this.Bus = bus;
-            Capacity = 64 * 1024 - 1;
+            Capacity = DWord.MaxValue;
             Ram = new Word[Capacity];
             VramBase = 0x2400;
-            VramEnd = 0x3fff;
-            Vram = new Word[VramEnd - VramBase];
+            VramEnd = 0x4000;
             Bus.LoadEvent += Bus_LoadEvent;
             Bus.StoreEvent += Bus_StoreEvent;
         }
@@ -49,6 +46,11 @@ namespace eZet.i8080.Emulator {
 
         public void Bus_StoreEvent(object sender, BusEventArgs e) {
             Ram[e.Adr] = e.Data;
+        }
+
+        public Word[] getVram() {
+            return Ram;
+//            return (Ram.Skip<Word>(VramBase).Take<Word>(VramEnd - VramBase)).ToArray();
         }
 
         public Word this[DWord index] {

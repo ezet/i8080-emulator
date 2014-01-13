@@ -18,30 +18,35 @@ using System.Drawing.Imaging;
 namespace eZet.i8080.Games.SpaceInvaders {
     public partial class SpaceInvaders : Form, IVideoDevice {
 
+
         private System8080 system;
 
         private Debugger debug;
 
         private BackgroundWorker bw;
 
-        private PictureBox box = new PictureBox();
 
-        private Bitmap bmap;
-
-
-        public SpaceInvaders() {
+        public unsafe SpaceInvaders() {
             InitializeComponent();
-            Controls.Add(box);
-            box.Show();
             initializeCpu();
         }
 
         public void vblank() {
-            Debug.WriteLine("VBLANK");
-            bmap = new Bitmap(system.getVram());
-            box.Image = bmap;
-            box.Refresh();
+            if (this.pictureBox1.InvokeRequired) {
+                this.Invoke(new MethodInvoker(refresh));
+            } else {
+                refresh();
+            }
+        }
 
+        private unsafe void refresh() {
+            Bitmap bmap;
+            fixed (byte* p = &system.MemoryController.Ram[system.MemoryController.VramBase]) {
+                bmap = new Bitmap(256, 224, 32, PixelFormat.Format1bppIndexed, (IntPtr)p);
+            }
+            bmap.RotateFlip(RotateFlipType.Rotate270FlipY);
+            pictureBox1.Image = null;
+            pictureBox1.Image = bmap;
         }
 
         private void initializeCpu() {
@@ -66,7 +71,6 @@ namespace eZet.i8080.Games.SpaceInvaders {
             MemoryStream ms = loadInvaders();
             system.loadProgram(ms, 0);
 
-
             startInterruptTimer();
 
             // boot i8080
@@ -74,29 +78,25 @@ namespace eZet.i8080.Games.SpaceInvaders {
             bw.DoWork += new DoWorkEventHandler(bw_DoWork);
             bw.RunWorkerAsync(system);
 
-          }
+        }
 
-         private void bw_DoWork(object sender, DoWorkEventArgs e) {
+        private void bw_DoWork(object sender, DoWorkEventArgs e) {
             BackgroundWorker worker = sender as BackgroundWorker;
             System8080 system = e.Argument as System8080;
             system.boot();
         }
 
         private void startInterruptTimer() {
-            System.Timers.Timer rst2Timer = new System.Timers.Timer(16);
-            rst2Timer.AutoReset = true;
-            rst2Timer.Elapsed += (source, e) => {
-                system.IoController.Interrupt(0, 0xcf); // RST8 
+            System.Timers.Timer timer = new System.Timers.Timer(16);
+            timer.AutoReset = true;
+            timer.Elapsed += (source, e) => {
+                system.IoController.Interrupt(0, 0xcf); // RST 8 
+                Thread.Sleep(7);
+                vblank();
+                Thread.Sleep(7);
                 system.IoController.Interrupt(0, 0xd7); // RST 10 start vblank
             };
-            rst2Timer.Enabled = true;
-
-            System.Timers.Timer videoTimer = new System.Timers.Timer(1000);
-            videoTimer.AutoReset = true;
-            videoTimer.Elapsed += (source, e) => {
-                system.draw();
-            };
-            videoTimer.Enabled = true;
+            timer.Enabled = true;
         }
 
         private MemoryStream loadInvaders() {

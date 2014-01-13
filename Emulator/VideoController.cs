@@ -11,6 +11,8 @@ using DWord = System.UInt16;
 namespace eZet.i8080.Emulator {
     public class VideoController {
 
+        public event EventHandler VblankEvent;
+
         public IVideoDevice Device { get; private set; }
 
         public Bus Bus { get; private set; }
