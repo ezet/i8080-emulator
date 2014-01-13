@@ -14,6 +14,7 @@ using eZet.i8080.Diagnostics;
 using eZet.i8080.Emulator;
 using Debug = System.Diagnostics.Debug;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace eZet.i8080.Games.SpaceInvaders {
     public partial class SpaceInvaders : Form, IVideoDevice {
@@ -25,28 +26,45 @@ namespace eZet.i8080.Games.SpaceInvaders {
 
         private BackgroundWorker bw;
 
+        private Bitmap bmap;
+
+        private Byte[] vram;
+
+        private int c;
+
 
         public unsafe SpaceInvaders() {
             InitializeComponent();
             initializeCpu();
+            vram = new byte[7168];
+            GCHandle handle = GCHandle.Alloc(vram, GCHandleType.Pinned);
+            IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(vram, 0);
+            //bmap = new Bitmap(256, 224, 32, PixelFormat.Format1bppIndexed, ptr);
+            //bmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
         }
 
         public void vblank() {
-            if (this.pictureBox1.InvokeRequired) {
-                this.Invoke(new MethodInvoker(refresh));
+            if (pictureBox1.InvokeRequired && !this.IsDisposed) {
+                pictureBox1.Invoke(new MethodInvoker(refresh));
             } else {
                 refresh();
             }
         }
 
         private unsafe void refresh() {
-            Bitmap bmap;
-            fixed (byte* p = &system.MemoryController.Ram[system.MemoryController.VramBase]) {
-                bmap = new Bitmap(256, 224, 32, PixelFormat.Format1bppIndexed, (IntPtr)p);
-            }
-            bmap.RotateFlip(RotateFlipType.Rotate270FlipY);
-            pictureBox1.Image = null;
+            var ram = system.getVram();
+            Array.Reverse(ram);
+            GCHandle handle = GCHandle.Alloc(ram, GCHandleType.Pinned);
+            IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(ram, 0);
+            bmap = new Bitmap(256, 224, 32, PixelFormat.Format1bppIndexed, ptr);
+            bmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
             pictureBox1.Image = bmap;
+            pictureBox1.Refresh();
+            handle.Free();
+            //BitmapData result = bmap.LockBits(new Rectangle(0, 0, 256, 224), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
+            //bmap.UnlockBits(result);
+            //pictureBox1.Image = null;
+
         }
 
         private void initializeCpu() {
@@ -87,16 +105,16 @@ namespace eZet.i8080.Games.SpaceInvaders {
         }
 
         private void startInterruptTimer() {
-            System.Timers.Timer timer = new System.Timers.Timer(16);
-            timer.AutoReset = true;
-            timer.Elapsed += (source, e) => {
-                system.IoController.Interrupt(0, 0xcf); // RST 8 
-                Thread.Sleep(7);
+            System.Timers.Timer rst8Timer = new System.Timers.Timer(15);
+            rst8Timer.AutoReset = true;
+            rst8Timer.Elapsed += (source, e) => {
                 vblank();
+                Thread.Sleep(7);
+                system.IoController.Interrupt(0, 0xcf); // RST 8 
                 Thread.Sleep(7);
                 system.IoController.Interrupt(0, 0xd7); // RST 10 start vblank
             };
-            timer.Enabled = true;
+            rst8Timer.Enabled = true;
         }
 
         private MemoryStream loadInvaders() {

@@ -25,7 +25,7 @@ namespace eZet.i8080.Emulator {
 
         public DWord ProgramEnd { get; private set; }
 
-        public DWord VramBase {get; private set;}
+        public DWord VramBase { get; private set; }
 
         public DWord VramEnd { get; private set; }
 
@@ -49,8 +49,8 @@ namespace eZet.i8080.Emulator {
         }
 
         public Word[] getVram() {
-            return Ram;
-//            return (Ram.Skip<Word>(VramBase).Take<Word>(VramEnd - VramBase)).ToArray();
+            var tmp = Ram.Skip<Word>(VramBase).Take<Word>(VramEnd - VramBase).ToArray();
+            return tmp;
         }
 
         public Word this[DWord index] {
