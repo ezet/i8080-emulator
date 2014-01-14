@@ -34,12 +34,7 @@ namespace eZet.i8080.Emulator {
         }
 
         public void executeInstruction(Word opcode) {
-            try {
                 opcodes[opcode].Invoke();
-            } catch (NullReferenceException e) {
-                Console.Write(e.ToString());
-                Environment.Exit(1);
-            }
         }
 
 

@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArcadeController.cs" />
     <Compile Include="ShiftDevice.cs" />
     <Compile Include="SpaceInvaders.cs">
       <SubType>Form</SubType>

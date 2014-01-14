@@ -23,6 +23,8 @@ namespace eZet.i8080.Emulator {
 
         public event EventHandler<BusEventArgs> VideoEvent;
 
+        private object locker = new object();
+
         public Word Data { get; set; }
 
         public DWord Adr { get; set; }
@@ -33,8 +35,10 @@ namespace eZet.i8080.Emulator {
         }
 
         public Word Load(DWord adr) {
-            onLoad(new BusEventArgs(adr));
-            return Data;
+            lock (locker) {
+                onLoad(new BusEventArgs(adr));
+                return Data;
+            }
         }
 
         public void Load() {
@@ -50,8 +54,10 @@ namespace eZet.i8080.Emulator {
         }
 
         public Word DeviceIn(DWord port) {
-            onRead(new BusEventArgs(port));
-            return Data;
+            lock (locker) {
+                onRead(new BusEventArgs(port));
+                return Data;
+            }
         }
 
         public Word DeviceIn() {
