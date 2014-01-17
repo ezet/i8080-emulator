@@ -58,9 +58,9 @@ namespace eZet.i8080.Games.SpaceInvaders {
             system.addOutput(new DebugDevice(3), 3);
             system.addOutput(new DebugDevice(5), 5);
             var controller = new ArcadeController();
-            //system.addInput(controller, 1);
+            system.addInput(controller, 1);
             system.addInput(new DebugDevice(0, true, 0xff), 0);
-            system.addInput(new DebugDevice(1, false, 0x81), 1);
+            //system.addInput(new DebugDevice(1, false, 0x81), 1);
             system.addInput(new DebugDevice(2, false, 0x83), 2);
 
             this.KeyDown += new KeyEventHandler(controller.KeyDown);

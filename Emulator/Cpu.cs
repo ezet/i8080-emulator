@@ -9,6 +9,8 @@ using Word = System.Byte;
 using DWord = System.UInt16;
 using Flag = eZet.i8080.Emulator.StatusFlag;
 using System.IO;
+using System.Diagnostics;
+using System.Threading;
 
 
 
@@ -17,6 +19,8 @@ namespace eZet.i8080.Emulator {
     public class Cpu {
 
         public bool Debug { get; set; }
+
+        public bool Throttle { get; set; }
 
         public Register Reg { get; private set; }
 
@@ -40,56 +44,78 @@ namespace eZet.i8080.Emulator {
 
         private volatile Word interruptVector;
 
-        private volatile bool interruptReq;
+        private volatile bool Irq;
 
         private DWord locationCounter;
 
-        private object InterruptLock = new object();
+        private object IrqLock = new object();
+
+        public int Hz { get; set; }
+
+        public int ThrottleFrequency { get; set; }
 
         public Bus Bus { get; private set; }
 
         public Cpu(Bus bus) {
+            Hz = 2000000;
             this.Bus = bus;
             Reg = new Register();
             Flags = new StatusRegister();
             Alu = new Alu();
             Decoder = new InstructionHandler(this);
             Bus.InterruptEvent += Bus_InterruptEvent;
+            ThrottleFrequency = 100;
         }
 
 
         internal void run() {
             initialize();
-
+            int throttleCycle = 0;
+            int cyclesPerThrottle = Hz / ThrottleFrequency;
+            TimeSpan throttleTime = TimeSpan.FromMilliseconds(1000 / ThrottleFrequency);
+            TimeSpan begin = TimeSpan.Zero;
             while (!Halt) {
                 if (Debug) {
                     Debugger.executing(Reg.Pc);
                 }
-
+                if (Throttle) {
+                    begin = Process.GetCurrentProcess().TotalProcessorTime;
+                }
                 fetchNextInstruction();
-                Decoder.executeInstruction(instructionRegister);
+                var c = Decoder.executeInstruction(instructionRegister);
+                Cycles += c;
+                throttleCycle += c;
+                if (Throttle && throttleCycle > cyclesPerThrottle) {
+                    TimeSpan end = Process.GetCurrentProcess().TotalProcessorTime;
+                    var wait = throttleTime - (end - begin);
+                    throttleCycle = 0;
+                    Thread.Sleep(wait);
+                }
+
                 // hack
                 Reg[SymRef.F] = Flags.get();
                 ++instCount;
 
-                lock (InterruptLock) {
-                    if (IntE && interruptReq) {
+                lock (IrqLock) {
+                    if (IntE && Irq) {
                         IntE = false;
                         Decoder.executeInstruction(interruptVector);
-                        interruptReq = false;
+                        Irq = false;
                     }
                 }
             }
         }
 
         public void Bus_InterruptEvent(object sender, BusEventArgs e) {
-            lock (InterruptLock) {
-                interruptReq = true;
-                interruptVector = e.Data;
+            lock (IrqLock) {
+                if (IntE) {
+                    Irq = true;
+                    interruptVector = e.Data;
+                }
             }
         }
 
-    
+
         internal Word DeviceRead(Word port) {
             return Bus.DeviceIn(port);
         }
@@ -122,7 +148,10 @@ namespace eZet.i8080.Emulator {
         }
 
         internal void jmp(DWord adr) {
-                Reg.Pc = adr;
+            if (adr == 0) {
+                Console.WriteLine("Jmp 0");
+            }
+            Reg.Pc = adr;
         }
 
         internal void call(DWord address) {
@@ -152,7 +181,7 @@ namespace eZet.i8080.Emulator {
             push((Word)data);
         }
 
-        internal void nop() { }
+        internal Word nop() { return 4; }
 
         internal void setFlags(params StatusFlag[] flagList) {
             setFlags(Decoder.acc, flagList);
@@ -176,7 +205,11 @@ namespace eZet.i8080.Emulator {
             }
 
             if (flagList.Contains(StatusFlag.A)) {
-                // TODO implement this
+                if (Alu.AuxCarry) {
+                    Flags.set(StatusFlag.A);
+                } else {
+                    Flags.clear(StatusFlag.A);
+                }
             }
 
             if (flagList.Contains(StatusFlag.Z)) {
@@ -217,7 +250,7 @@ namespace eZet.i8080.Emulator {
         private void debugPrint(DWord address) {
             if (Debug && address == 0x5) {
                 if (Reg[SymRef.C] == 9) {
-                    DWord adr = (DWord)(Reg[SymRefD.DE] + 3);
+                    DWord adr = (DWord)(Reg[SymRefD.DE]);
                     string str = "";
                     while (load(adr) != '$') {
                         str += (char)load(adr++);

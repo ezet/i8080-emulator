@@ -13,22 +13,29 @@ namespace eZet.i8080.Emulator {
         private int tmp;
         public bool Carry { get; private set; }
 
+        public bool AuxCarry { get; private set; }
+
         public Alu() {
         }
 
         public void reset() {
             Carry = false;
+            AuxCarry = false;
         }
 
         public Word add(params Word[] list) {
             tmp = 0;
+            int ac = 0;
             foreach (var val in list) {
                 tmp += val;
+                ac += (val & 0x0f);
             }
+            checkAc(ac);
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp;
         }
-        public DWord add(params DWord[]list) {
+
+        public DWord add(params DWord[] list) {
             tmp = 0;
             foreach (var val in list) {
                 tmp += val;
@@ -39,13 +46,15 @@ namespace eZet.i8080.Emulator {
 
         public Word sub(params Word[] list) {
             tmp = list[0];
+            int ac = (list[0] & 0x0f);
             foreach (var value in list.Skip(1)) {
                 tmp -= value;
+                ac -= (value & 0x0f);
             }
+            checkAc(ac);
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp; ;
         }
-
 
         public DWord sub(params DWord[] list) {
             tmp = list[0];
@@ -64,7 +73,6 @@ namespace eZet.i8080.Emulator {
             tmp = value >> count;
             return (Word)tmp;
         }
-
 
         public Word rotateCarryLeft(Word value, int count, bool carry) {
             Word c = (Word)(carry ? 1 : 0);
@@ -89,6 +97,7 @@ namespace eZet.i8080.Emulator {
             foreach (var value in list.Skip(1)) {
                 tmp &= value;
             }
+            checkAc(0);
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp;
         }
@@ -98,6 +107,7 @@ namespace eZet.i8080.Emulator {
             foreach (var value in list.Skip(1)) {
                 tmp |= value;
             }
+            checkAc(0);
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp;
         }
@@ -107,6 +117,7 @@ namespace eZet.i8080.Emulator {
             foreach (var value in list.Skip(1)) {
                 tmp ^= value;
             }
+            checkAc(0);
             checkCarry(Word.MinValue, Word.MaxValue);
             return (Word)tmp;
         }
@@ -120,9 +131,15 @@ namespace eZet.i8080.Emulator {
             }
         }
 
-       
+        private void checkAc(int val) {
+            if (val > 0xf) {
+                AuxCarry = true;
+            } else {
+                AuxCarry = false;
+            }
+        }
 
-   
+
 
     }
 }

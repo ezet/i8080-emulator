@@ -11,7 +11,7 @@ using Flag = eZet.i8080.Emulator.StatusFlag;
 namespace eZet.i8080.Emulator {
     public class InstructionHandler {
 
-        public delegate void Instruction();
+        public delegate Word Instruction();
 
         private Cpu cpu;
 
@@ -33,8 +33,13 @@ namespace eZet.i8080.Emulator {
             initOpcodeMap();
         }
 
-        public void executeInstruction(Word opcode) {
-                opcodes[opcode].Invoke();
+        public Word executeInstruction(Word opcode) {
+            try {
+                return opcodes[opcode].Invoke();
+            } catch (NullReferenceException e) {
+                throw new NotImplementedException(string.Format("Unknown opcode: 0x{0:X2}", opcode), e);
+            }
+
         }
 
 
@@ -47,16 +52,19 @@ namespace eZet.i8080.Emulator {
             opcodes[0x01] = () => {
                 reg[SymRef.C] = cpu.loadPc();
                 reg[SymRef.B] = cpu.loadPc();
+                return 10;
             };
 
             // STAX B
             opcodes[0x02] = () => {
                 cpu.store(reg[SymRefD.BC], reg[SymRef.A]);
+                return 7;
             };
 
             // INX B
             opcodes[0x03] = () => {
                 reg[SymRefD.BC] = alu.add(reg[SymRefD.BC], 1);
+                return 5;
             };
 
             // INR B
@@ -65,6 +73,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.B] = acc;
+                return 5;
             };
 
             // DCR B
@@ -73,11 +82,13 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.B] = acc;
+                return 5;
             };
 
             // MVI B, d8
             opcodes[0x06] = () => {
                 reg[SymRef.B] = cpu.loadPc();
+                return 7;
             };
 
             // RLC
@@ -86,6 +97,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.rotateLeft(acc, 1);
                 flags.put(acc, Flag.C);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // NOP
@@ -95,16 +107,19 @@ namespace eZet.i8080.Emulator {
             opcodes[0x09] = () => {
                 reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], reg[SymRefD.BC]);
                 cpu.setFlags(Flag.C);
+                return 10;
             };
 
             // LDAX B
             opcodes[0x0a] = () => {
                 reg[SymRef.A] = cpu.load(reg[SymRefD.BC]);
+                return 7;
             };
 
             // DCX B
             opcodes[0x0b] = () => {
                 reg[SymRefD.BC] = alu.sub(reg[SymRefD.BC], 1);
+                return 5;
             };
 
             // INR C
@@ -113,6 +128,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.C] = acc;
+                return 5;
             };
 
             // DCR C
@@ -121,11 +137,13 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.C] = acc;
+                return 5;
             };
 
             // MVI C, d8
             opcodes[0x0e] = () => {
                 reg[SymRef.C] = cpu.loadPc();
+                return 7;
             };
 
             // RRC
@@ -134,6 +152,7 @@ namespace eZet.i8080.Emulator {
                 flags.put(acc, Flag.C);
                 acc = alu.rotateRight(acc, 1);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // NOP
@@ -143,16 +162,19 @@ namespace eZet.i8080.Emulator {
             opcodes[0x11] = () => {
                 reg[SymRef.E] = cpu.loadPc();
                 reg[SymRef.D] = cpu.loadPc();
+                return 10;
             };
 
             // STAX D
             opcodes[0x12] = () => {
                 cpu.store(reg[SymRefD.DE], reg[SymRef.A]);
+                return 7;
             };
 
             //INX D
             opcodes[0x13] = () => {
                 reg[SymRefD.DE] = alu.add(reg[SymRefD.DE], 1);
+                return 5;
             };
 
             // INR D
@@ -161,6 +183,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.D] = acc;
+                return 5;
             };
 
             // DCR D
@@ -169,11 +192,13 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.D] = acc;
+                return 5;
             };
 
             // MVI D, d8
             opcodes[0x16] = () => {
                 reg[SymRef.D] = cpu.loadPc();
+                return 7;
             };
 
             // RAL
@@ -182,6 +207,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.rotateCarryLeft(acc, 1, flags.get(Flag.C));
                 cpu.setFlags(Flag.C);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // NOP
@@ -191,16 +217,19 @@ namespace eZet.i8080.Emulator {
             opcodes[0x19] = () => {
                 reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], reg[SymRefD.DE]);
                 cpu.setFlags(Flag.C);
+                return 10;
             };
 
             // LDAX D
             opcodes[0x1a] = () => {
                 reg[SymRef.A] = cpu.load(reg[SymRefD.DE]);
+                return 7;
             };
 
             // DCX D
             opcodes[0x1b] = () => {
                 reg[SymRefD.DE] = alu.sub(reg[SymRefD.DE], 1);
+                return 5;
             };
 
             // INR E
@@ -209,6 +238,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.E] = acc;
+                return 5;
             };
 
             // DCR E
@@ -217,11 +247,13 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.E] = acc;
+                return 5;
             };
 
             // MVI E, d8
             opcodes[0x1e] = () => {
                 reg[SymRef.E] = cpu.loadPc();
+                return 7;
             };
 
             // RAR
@@ -231,6 +263,7 @@ namespace eZet.i8080.Emulator {
                 Word carry = (Word)(flags.get(Flag.C) ? 1 : 0);
                 acc = alu.rotateCarryRight(acc, 1, carry);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // RIM, 8085 only
@@ -240,6 +273,7 @@ namespace eZet.i8080.Emulator {
             opcodes[0x21] = () => {
                 reg[SymRef.L] = cpu.loadPc();
                 reg[SymRef.H] = cpu.loadPc();
+                return 10;
             };
 
             // SHLD adr
@@ -247,11 +281,13 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 cpu.store(adr, reg[SymRef.L]);
                 cpu.store(++adr,reg[SymRef.H]);
+                return 16;
             };
 
             // INX H
             opcodes[0x23] = () => {
                 reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], 1);
+                return 5;
             };
 
             // INR H
@@ -260,6 +296,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.H] = acc;
+                return 5;
             };
 
             // DCR H
@@ -268,15 +305,32 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.H] = acc;
+                return 5;
             };
 
             // MVI H, d8
             opcodes[0x26] = () => {
                 reg[SymRef.H] = cpu.loadPc();
+                return 7;
             };
 
             // DAA
-            opcodes[0x27] = null;
+            opcodes[0x27] = () => {
+                acc = reg[SymRef.A];
+                acc &= 0x0f;
+                if (acc > 9 || flags.get(Flag.A)) {
+                    reg[SymRef.A] = alu.add(reg[SymRef.A], 6);
+                }
+                cpu.setFlags(Flag.A);
+                acc = reg[SymRef.A];
+                acc = (Word)(acc >> 4);
+                if (acc > 9 || flags.get(Flag.C)) {
+                    acc = alu.add(reg[SymRef.A], 96);
+                    reg[SymRef.A] = acc;
+                }
+                cpu.setFlags(Flag.C, Flag.Z, Flag.S, Flag.P);
+                return 4;
+            };
 
             // NOP
             opcodes[0x28] = cpu.nop;
@@ -285,6 +339,7 @@ namespace eZet.i8080.Emulator {
             opcodes[0x29] = () => {
                 reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], reg[SymRefD.HL]);
                 cpu.setFlags(Flag.C);
+                return 10;
             };
 
             // LHLD adr
@@ -292,11 +347,13 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 reg[SymRef.L] = cpu.load(adr);
                 reg[SymRef.H] = cpu.load(++adr);
+                return 16;
             };
 
             // DCX H
             opcodes[0x2b] = () => {
                 reg[SymRefD.HL] = alu.sub(reg[SymRefD.HL], 1);
+                return 5;
             };
 
             // INR L
@@ -305,6 +362,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.L] = acc;
+                return 5;
             };
 
             // DCR L
@@ -313,36 +371,42 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.L] = acc;
+                return 5;
             };
 
             // MVI L, d8
             opcodes[0x2e] = () => {
                 reg[SymRef.L] = cpu.loadPc();
+                return 7;
             };
 
             // CMA
             opcodes[0x2f] = () => {
                 reg[SymRef.A] = (byte)~reg[SymRef.A];
+                return 4;
             };
 
             // SIM, i8085
-            opcodes[0x30] = null;
+            opcodes[0x30] = cpu.nop;
 
             // LXI SP, d16
             opcodes[0x31] = () => {
                 DWord adr = cpu.loadPcAddress();
                 reg.Sp = adr;
+                return 10;
             };
 
             // STA adr
             opcodes[0x32] = () => {
                 DWord adr = cpu.loadPcAddress();
                 cpu.store(adr, reg[SymRef.A]);
+                return 13;
             };
 
             // INX SP
             opcodes[0x33] = () => {
                 reg.Sp = alu.add(reg.Sp, 1);
+                return 5;
             };
 
             // INR M
@@ -351,6 +415,7 @@ namespace eZet.i8080.Emulator {
                 cpu.store(reg[SymRefD.M], acc);
                 cpu.setFlags(cpu.load(reg[SymRefD.M]), Flag.Z, Flag.S, Flag.P, Flag.A);
                 // TODO setflags DWord
+                return 10;
             };
 
             // DCR M
@@ -359,17 +424,20 @@ namespace eZet.i8080.Emulator {
                 cpu.store(reg[SymRefD.M], acc);
                 cpu.setFlags(cpu.load(reg[SymRefD.M]), Flag.Z, Flag.S, Flag.P, Flag.A);
                 // TODO setflags DWord
+                return 10;
             };
 
 
             // MVI M, d8
             opcodes[0x36] = () => {
                 cpu.store(reg[SymRefD.M], cpu.loadPc());
+                return 10;
             };
 
             // STC
             opcodes[0x37] = () => {
                 flags.set(Flag.C);
+                return 4;
             };
 
             // NOP
@@ -378,17 +446,20 @@ namespace eZet.i8080.Emulator {
             // DAD SP
             opcodes[0x39] = () => {
                 reg[SymRefD.HL] = alu.add(reg[SymRefD.HL], reg.Sp);
+                return 10;
             };
 
             // LDA adr
             opcodes[0x3a] = () => {
                 DWord adr = cpu.loadPcAddress();
                 reg[SymRef.A] = cpu.load(adr);
+                return 16;
             };
 
             // DCX SP
             opcodes[0x3b] = () => {
                 reg.Sp = alu.sub(reg.Sp, 1);
+                return 5;
             };
 
             // INR A
@@ -397,9 +468,8 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.A] = acc;
+                return 5;
             };
-
-
 
             // DCR A
             opcodes[0x3d] = () => {
@@ -407,336 +477,409 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(acc, 1);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.A);
                 reg[SymRef.A] = acc;
+                return 5;
             };
 
             // MVI A, d8
             opcodes[0x3e] = () => {
                 reg[SymRef.A] = cpu.loadPc();
+                return 7;
             };
 
             // CMC
             opcodes[0x3f] = () => {
                 flags.toggle(Flag.C);
+                return 4;
             };
 
             // MOV B, B
             opcodes[0x40] = () => {
                 reg[SymRef.B] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV B, C
             opcodes[0x41] = () => {
                 reg[SymRef.B] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV B, D
             opcodes[0x42] = () => {
                 reg[SymRef.B] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV B, E
             opcodes[0x43] = () => {
                 reg[SymRef.B] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV B, H
             opcodes[0x44] = () => {
                 reg[SymRef.B] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV B, L
             opcodes[0x45] = () => {
                 reg[SymRef.B] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV B, M
             opcodes[0x46] = () => {
                 reg[SymRef.B] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV B, A
             opcodes[0x47] = () => {
                 reg[SymRef.B] = reg[SymRef.A];
+                return 5;
             };
 
             // MOV C, B
             opcodes[0x48] = () => {
                 reg[SymRef.C] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV C, C
             opcodes[0x49] = () => {
                 reg[SymRef.C] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV C, D
             opcodes[0x4a] = () => {
                 reg[SymRef.C] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV C, E
             opcodes[0x4b] = () => {
                 reg[SymRef.C] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV C, H
             opcodes[0x4c] = () => {
                 reg[SymRef.C] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV C, L
             opcodes[0x4d] = () => {
                 reg[SymRef.C] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV C, M
             opcodes[0x4e] = () => {
                 reg[SymRef.C] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV C, A
             opcodes[0x4f] = () => {
                 reg[SymRef.C] = reg[SymRef.A];
+                return 5;
             };
 
             // MOV D, B
             opcodes[0x50] = () => {
                 reg[SymRef.D] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV D, C
             opcodes[0x51] = () => {
                 reg[SymRef.D] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV D, D
             opcodes[0x52] = () => {
                 reg[SymRef.D] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV D, E
             opcodes[0x53] = () => {
                 reg[SymRef.D] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV D, H
             opcodes[0x54] = () => {
                 reg[SymRef.D] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV D, L
             opcodes[0x55] = () => {
                 reg[SymRef.D] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV D, M
             opcodes[0x56] = () => {
                 reg[SymRef.D] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV D, A
             opcodes[0x57] = () => {
                 reg[SymRef.D] = reg[SymRef.A];
+                return 5;
             };
 
             // MOV E, B
             opcodes[0x58] = () => {
                 reg[SymRef.E] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV E, C
             opcodes[0x59] = () => {
                 reg[SymRef.E] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV E, D
             opcodes[0x5a] = () => {
                 reg[SymRef.E] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV E, E
             opcodes[0x5b] = () => {
                 reg[SymRef.E] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV E, H
             opcodes[0x5c] = () => {
                 reg[SymRef.E] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV E, L
             opcodes[0x5d] = () => {
                 reg[SymRef.E] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV E, M
             opcodes[0x5e] = () => {
                 reg[SymRef.E] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV E, A
             opcodes[0x5f] = () => {
                 reg[SymRef.E] = reg[SymRef.A];
+                return 5;
             };
 
             // MOV H, B
             opcodes[0x60] = () => {
                 reg[SymRef.H] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV H, C
             opcodes[0x61] = () => {
                 reg[SymRef.H] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV H, D
             opcodes[0x62] = () => {
                 reg[SymRef.H] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV H, E
             opcodes[0x63] = () => {
                 reg[SymRef.H] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV H, H
             opcodes[0x64] = () => {
                 reg[SymRef.H] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV H, L
             opcodes[0x65] = () => {
                 reg[SymRef.H] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV H, M
             opcodes[0x66] = () => {
                 reg[SymRef.H] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV H, A
             opcodes[0x67] = () => {
                 reg[SymRef.H] = reg[SymRef.A];
+                return 5;
             };
 
             // MOV L, B
             opcodes[0x68] = () => {
                 reg[SymRef.L] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV L, C
             opcodes[0x69] = () => {
                 reg[SymRef.L] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV L, D
             opcodes[0x6a] = () => {
                 reg[SymRef.L] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV L, E
             opcodes[0x6b] = () => {
                 reg[SymRef.L] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV L, H
             opcodes[0x6c] = () => {
                 reg[SymRef.L] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV L, L
             opcodes[0x6d] = () => {
                 reg[SymRef.L] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV L, M
             opcodes[0x6e] = () => {
                 reg[SymRef.L] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV L, A
             opcodes[0x6f] = () => {
                 reg[SymRef.L] = reg[SymRef.A];
+                return 5;
             };
 
             // MOV M, B
             opcodes[0x70] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.B]);
+                return 7;
             };
 
             // MOV M, C
             opcodes[0x71] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.C]);
+                return 7;
+
             };
 
             // MOV M, D
             opcodes[0x72] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.D]);
+                return 7;
+
             };
 
             // MOV M, E
             opcodes[0x73] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.E]);
+                return 7;
+
             };
 
             // MOV M, H
             opcodes[0x74] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.H]);
+                return 7;
+
             };
 
             // MOV M, L
             opcodes[0x75] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.L]);
+                return 7;
+
             };
 
             // HLT
             opcodes[0x76] = () => {
                 cpu.Halt = true;
+                return 7;
+
             };
 
             // MOV M, A
             opcodes[0x77] = () => {
                 cpu.store(reg[SymRefD.M], reg[SymRef.A]);
+                return 5;
             };
 
             // MOV A, B
             opcodes[0x78] = () => {
                 reg[SymRef.A] = reg[SymRef.B];
+                return 5;
             };
 
             // MOV A, C
             opcodes[0x79] = () => {
                 reg[SymRef.A] = reg[SymRef.C];
+                return 5;
             };
 
             // MOV A, D
             opcodes[0x7a] = () => {
                 reg[SymRef.A] = reg[SymRef.D];
+                return 5;
             };
 
             // MOV A, E
             opcodes[0x7b] = () => {
                 reg[SymRef.A] = reg[SymRef.E];
+                return 5;
             };
 
             // MOV A, H
             opcodes[0x7c] = () => {
                 reg[SymRef.A] = reg[SymRef.H];
+                return 5;
             };
 
             // MOV A, L
             opcodes[0x7d] = () => {
                 reg[SymRef.A] = reg[SymRef.L];
+                return 5;
             };
 
             // MOV A, M
             opcodes[0x7e] = () => {
                 reg[SymRef.A] = cpu.load(reg[SymRefD.M]);
+                return 7;
             };
 
             // MOV A, A
             opcodes[0x7f] = () => {
                 reg[SymRef.A] = reg[SymRef.A];
+                return 5;
             };
 
             // ADD B
@@ -744,6 +887,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.B]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADD C
@@ -751,6 +895,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.C]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADD D
@@ -758,6 +903,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.D]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADD E
@@ -765,6 +911,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.E]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADD H
@@ -772,6 +919,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.H]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADD L
@@ -779,6 +927,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.L]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADD M
@@ -786,6 +935,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], cpu.load(reg[SymRefD.M]));
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // ADD A
@@ -793,6 +943,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.A]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC B
@@ -801,6 +952,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.B], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC C
@@ -809,6 +961,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.C], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC D
@@ -817,6 +970,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.D], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC E
@@ -825,6 +979,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.E], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC H
@@ -833,6 +988,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.H], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC L
@@ -841,6 +997,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.L], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ADC M
@@ -849,6 +1006,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], cpu.load(reg[SymRefD.M]), carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // ADC A
@@ -857,6 +1015,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], reg[SymRef.A], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB B
@@ -864,6 +1023,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.B]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB C
@@ -871,6 +1031,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.C]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB D
@@ -878,6 +1039,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.D]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB E
@@ -885,6 +1047,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.E]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB H
@@ -892,6 +1055,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.H]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB L
@@ -899,6 +1063,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.L]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SUB M
@@ -906,6 +1071,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], cpu.load(reg[SymRefD.M]));
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // SUB A
@@ -913,6 +1079,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.A]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB B
@@ -921,6 +1088,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.B], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB C
@@ -929,6 +1097,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.C], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB D
@@ -937,6 +1106,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.D], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB E
@@ -945,6 +1115,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.E], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB H
@@ -953,6 +1124,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.H], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB L
@@ -961,6 +1133,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.L], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // SBB M
@@ -969,6 +1142,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], cpu.load(reg[SymRefD.M]), carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // SBB A
@@ -977,6 +1151,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.A], carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA B
@@ -984,6 +1159,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.B]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA C
@@ -991,6 +1167,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.C]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA D
@@ -998,6 +1175,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.D]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA E
@@ -1005,6 +1183,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.E]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA H
@@ -1012,6 +1191,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.H]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA L
@@ -1019,6 +1199,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.L]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ANA M
@@ -1026,6 +1207,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], cpu.load(reg[SymRefD.M]));
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // ANA A
@@ -1033,6 +1215,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], reg[SymRef.A]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA B
@@ -1040,6 +1223,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.B]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA C
@@ -1047,6 +1231,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.C]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA D
@@ -1054,6 +1239,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.D]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA E
@@ -1061,6 +1247,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.E]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA H
@@ -1068,6 +1255,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.H]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA L
@@ -1075,6 +1263,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.L]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // XRA M
@@ -1082,6 +1271,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], cpu.load(reg[SymRefD.M]));
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // XRA A
@@ -1089,6 +1279,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], reg[SymRef.A]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA B
@@ -1096,6 +1287,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.B]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA C
@@ -1103,6 +1295,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.C]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA D
@@ -1110,6 +1303,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.D]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA E
@@ -1117,6 +1311,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.E]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA H
@@ -1124,6 +1319,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.H]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA L
@@ -1131,6 +1327,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.L]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // ORA M
@@ -1138,6 +1335,7 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], cpu.load(reg[SymRefD.M]));
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // ORA A
@@ -1145,67 +1343,79 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], reg[SymRef.A]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 4;
             };
 
             // CMP B
             opcodes[0xb8] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.B]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // CMP C
             opcodes[0xb9] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.C]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // CMP D
             opcodes[0xba] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.D]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // CMP E
             opcodes[0xbb] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.E]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // CMP H
             opcodes[0xbc] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.H]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // CMP L
             opcodes[0xbd] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.L]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // CMP M
             opcodes[0xbe] = () => {
                 acc = alu.sub(reg[SymRef.A], cpu.load(reg[SymRefD.M]));
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 7;
             };
 
             // CMP A
             opcodes[0xbf] = () => {
                 acc = alu.sub(reg[SymRef.A], reg[SymRef.A]);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 4;
             };
 
             // RNZ
             opcodes[0xc0] = () => {
                 if (!flags.get(Flag.Z)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // POP B
             opcodes[0xc1] = () => {
                 reg[SymRef.C] = cpu.pop();
                 reg[SymRef.B] = cpu.pop();
+                return 10;
             };
 
             // JNZ adr
@@ -1214,12 +1424,14 @@ namespace eZet.i8080.Emulator {
                 if (!flags.get(Flag.Z)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // JMP adr
             opcodes[0xc3] = () => {
                 DWord adr = cpu.loadPcAddress();
                 cpu.jmp(adr);
+                return 10;
             };
 
             // CNZ adr
@@ -1227,13 +1439,16 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (!flags.get(Flag.Z)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // PUSH B
             opcodes[0xc5] = () => {
                 cpu.push(reg[SymRef.B]);
                 cpu.push(reg[SymRef.C]);
+                return 11;
             };
 
             // ADI d8
@@ -1241,23 +1456,28 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], cpu.loadPc());
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // RST 0
             opcodes[0xc7] = () => {
                 cpu.call(0x00);
+                return 11;
             };
 
             // RZ
             opcodes[0xc8] = () => {
                 if (flags.get(Flag.Z)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // RET
             opcodes[0xc9] = () => {
                 cpu.ret();
+                return 10;
             };
 
             // JZ
@@ -1266,6 +1486,7 @@ namespace eZet.i8080.Emulator {
                 if (flags.get(Flag.Z)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // NOP
@@ -1276,13 +1497,16 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (flags.get(Flag.Z)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // CALL adr
             opcodes[0xcd] = () => {
                 DWord adr = cpu.loadPcAddress();
                 cpu.call(adr);
+                return 17;
             };
 
             // ACI d8
@@ -1291,25 +1515,29 @@ namespace eZet.i8080.Emulator {
                 acc = alu.add(reg[SymRef.A], cpu.loadPc(), carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
-
+                return 7;
             };
 
             // RST 1
             opcodes[0xcf] = () => {
                 cpu.call(0x08);
+                return 11;
             };
 
             // RNC
             opcodes[0xd0] = () => {
                 if (!flags.get(Flag.C)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // POP D
             opcodes[0xd1] = () => {
                 reg[SymRef.E] = cpu.pop();
                 reg[SymRef.D] = cpu.pop();
+                return 10;
             };
 
             // JNC adr
@@ -1318,12 +1546,14 @@ namespace eZet.i8080.Emulator {
                 if (!flags.get(Flag.C)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // OUT d8
             opcodes[0xd3] = () => {
                 Word port = cpu.loadPc();
                 cpu.deviceWrite(port, reg[SymRef.A]);
+                return 8;
             };
 
             // CNC adr
@@ -1331,13 +1561,16 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (!flags.get(Flag.C)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // PUSH D
             opcodes[0xd5] = () => {
                 cpu.push(reg[SymRef.D]);
                 cpu.push(reg[SymRef.E]);
+                return 11;
             };
 
             // SUI d8
@@ -1345,18 +1578,22 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], cpu.loadPc());
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // RST 2
             opcodes[0xd7] = () => {
                 cpu.call(0x10);
+                return 11;
             };
 
             // RC
             opcodes[0xd8] = () => {
                 if (flags.get(Flag.C)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // NOP
@@ -1368,12 +1605,14 @@ namespace eZet.i8080.Emulator {
                 if (flags.get(Flag.C)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // IN d8
             opcodes[0xdb] = () => {
                 Word port = cpu.loadPc();
                 reg[SymRef.A] = cpu.DeviceRead(port);
+                return 10;
             };
 
             // CC adr
@@ -1381,7 +1620,9 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (flags.get(Flag.C)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // NOP
@@ -1393,24 +1634,29 @@ namespace eZet.i8080.Emulator {
                 acc = alu.sub(reg[SymRef.A], cpu.loadPc(), carry);
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // RST 3
             opcodes[0xdf] = () => {
                 cpu.call(0x18);
+                return 11;
             };
 
             // RPO
             opcodes[0xe0] = () => {
                 if (!flags.get(Flag.P)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // POP H
             opcodes[0xe1] = () => {
                 reg[SymRef.L] = cpu.pop();
                 reg[SymRef.H] = cpu.pop();
+                return 10;
             };
 
             // JPO adr
@@ -1419,6 +1665,7 @@ namespace eZet.i8080.Emulator {
                 if (!flags.get(Flag.P)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // XTHL
@@ -1430,6 +1677,7 @@ namespace eZet.i8080.Emulator {
                 cpu.push(reg[SymRef.L]);
                 reg[SymRef.L] = lo;
                 reg[SymRef.H] = hi;
+                return 18;
             };
 
             // CPO adr
@@ -1437,13 +1685,16 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (!flags.get(Flag.P)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // PUSH H
             opcodes[0xe5] = () => {
                 cpu.push(reg[SymRef.H]);
                 cpu.push(reg[SymRef.L]);
+                return 11;
             };
 
             // ANI d8
@@ -1451,24 +1702,29 @@ namespace eZet.i8080.Emulator {
                 acc = alu.and(reg[SymRef.A], cpu.loadPc());
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // RST 4
             opcodes[0xe7] = () => {
                 cpu.call(0x20);
+                return 11;
             };
 
             // RPE
             opcodes[0xe8] = () => {
                 if (flags.get(Flag.P)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // PCHL
             opcodes[0xe9] = () => {
                 DWord adr = (DWord)(reg[SymRef.L] | reg[SymRef.H] << 8);
                 cpu.jmp(adr);
+                return 5;
             };
 
             // JPE adr
@@ -1477,6 +1733,7 @@ namespace eZet.i8080.Emulator {
                 if (flags.get(Flag.P)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // XDHG
@@ -1488,6 +1745,7 @@ namespace eZet.i8080.Emulator {
                 reg[SymRef.D] = reg[SymRef.H];
                 reg[SymRef.L] = lo;
                 reg[SymRef.H] = hi;
+                return 5;
             };
 
             // CPE adr
@@ -1495,7 +1753,9 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (flags.get(Flag.P)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // NOP
@@ -1506,24 +1766,29 @@ namespace eZet.i8080.Emulator {
                 acc = alu.xor(reg[SymRef.A], cpu.loadPc());
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // RST 5
             opcodes[0xef] = () => {
                 cpu.call(0x28);
+                return 11;
             };
 
             // RP
             opcodes[0xf0] = () => {
                 if (!flags.get(Flag.S)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
             // POP PSW
             opcodes[0xf1] = () => {
                 flags.put(cpu.pop());
                 reg[SymRef.A] = cpu.pop();
+                return 10;
             };
 
             // JP adr
@@ -1532,11 +1797,13 @@ namespace eZet.i8080.Emulator {
                 if (!flags.get(Flag.S)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // DI
             opcodes[0xf3] = () => {
                 cpu.IntE = false;
+                return 4;
             };
 
             // CP adr
@@ -1544,13 +1811,16 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (!flags.get(Flag.S)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // PUSH PSW
             opcodes[0xf5] = () => {
                 cpu.push(reg[SymRef.A]);
                 cpu.push(flags.get());
+                return 11;
             };
 
             // ORI d8
@@ -1558,23 +1828,28 @@ namespace eZet.i8080.Emulator {
                 acc = alu.or(reg[SymRef.A], cpu.loadPc());
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
                 reg[SymRef.A] = acc;
+                return 7;
             };
 
             // RST 5
             opcodes[0xf7] = () => {
                 cpu.call(0x30);
+                return 11;
             };
 
             // RM
             opcodes[0xf8] = () => {
                 if (flags.get(Flag.S)) {
                     cpu.ret();
+                    return 11;
                 }
+                return 5;
             };
 
-            //SPHL
+            // SPHL
             opcodes[0xf9] = () => {
                 reg.Sp = reg[SymRefD.HL];
+                return 5;
             };
 
             // JM adr
@@ -1583,11 +1858,13 @@ namespace eZet.i8080.Emulator {
                 if (flags.get(Flag.S)) {
                     cpu.jmp(adr);
                 }
+                return 10;
             };
 
             // EI
             opcodes[0xfb] = () => {
                 cpu.IntE = true;
+                return 4;
             };
 
             // CM adr
@@ -1595,7 +1872,9 @@ namespace eZet.i8080.Emulator {
                 DWord adr = cpu.loadPcAddress();
                 if (flags.get(Flag.S)) {
                     cpu.call(adr);
+                    return 17;
                 }
+                return 11;
             };
 
             // NOP
@@ -1606,11 +1885,13 @@ namespace eZet.i8080.Emulator {
             opcodes[0xfe] = () => {
                 acc = alu.sub(reg[SymRef.A], cpu.loadPc());
                 cpu.setFlags(Flag.Z, Flag.S, Flag.P, Flag.C, Flag.A);
+                return 7;
             };
 
             // RST 7
-            opcodes[0xef] = () => {
+            opcodes[0xff] = () => {
                 cpu.call(0x38);
+                return 11;
             };
         }
 

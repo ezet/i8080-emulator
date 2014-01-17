@@ -15,7 +15,7 @@ namespace eZet.i8080.Emulator {
 
         public Word[] Ram { get; private set; }
 
-        public DWord Capacity { get; private set; }
+        public int Capacity { get; private set; }
 
         public DWord SystemBase { get; private set; }
 
@@ -31,7 +31,7 @@ namespace eZet.i8080.Emulator {
 
         public MemoryController(Bus bus) {
             this.Bus = bus;
-            Capacity = DWord.MaxValue;
+            Capacity = DWord.MaxValue + 1;
             Ram = new Word[Capacity];
             VramBase = 0x2400;
             VramEnd = 0x4000;

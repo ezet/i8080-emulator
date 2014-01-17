@@ -91,18 +91,14 @@ namespace eZet.i8080.Emulator {
 
         public void RunCpuDiag() {
             var ms = new MemoryStream();
-            using (var fs = File.OpenRead("../../../diag/cpudiag.bin")) {
+            using (var fs = File.OpenRead("../../../diag/8080PRE.HEX")) {
                 fs.CopyTo(ms);
             }
 
             loadProgram(ms, 0x100);
 
             // Halt
-            MemoryController[0x06] = 0x76;
-            // skip DAA
-            MemoryController[0x59c] = 0xc3;
-            MemoryController[0x59d] = 0xc2;
-            MemoryController[0x59e] = 0x05;
+            //MemoryController[0x06] = 0x76;
 
             boot();
         }

@@ -64,19 +64,18 @@ namespace eZet.i8080.Games.SpaceInvaders {
                 case Keys.Up: set(Port1.P1Shot); break;
                 case Keys.D1: set(Port1.P1Start); break;
                 case Keys.D2: set(Port1.P2Start); break;
-                case Keys.Space: set(Port1.Credit); break;
+                case Keys.C: set(Port1.Credit); break;
             }
         }
 
         public void KeyUp(object sender, KeyEventArgs e) {
-            return;
             Debug.WriteLine("UP: ", e.KeyCode);
             switch (e.KeyCode) {
                 case Keys.Left: clear(Port1.P1Left); break;
                 case Keys.Right: clear(Port1.P1Right); break;
                 case Keys.D1: clear(Port1.P1Shot); break;
                 case Keys.D2: clear(Port1.P2Start); break;
-                case Keys.Space: clear(Port1.Credit); break;
+                case Keys.C: clear(Port1.Credit); break;
             }
         }
 
